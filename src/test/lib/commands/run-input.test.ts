@@ -32,7 +32,7 @@ describe('RunInputCommand', () => {
             })).thenResolve('COMMAND_OUTPUT_2');
 
             historyStore = mock(HistoryStore);
-            command = new RunInputCommand(shellCommandService, commandReader, historyStore, workspaceAdapter);
+            command = new RunInputCommand(shellCommandService, commandReader, historyStore, workspaceAdapter, null);
         });
 
         it('runs command with selected text and add commands to the history', async () => {
@@ -87,7 +87,7 @@ describe('RunInputCommand', () => {
             })).thenResolve('COMMAND_OUTPUT_2');
 
             historyStore = mock(HistoryStore);
-            command = new RunInputCommand(shellCommandService, commandReader, historyStore, workspaceAdapter);
+            command = new RunInputCommand(shellCommandService, commandReader, historyStore, workspaceAdapter, null);
         });
 
         it('runs command with selected text', async () => {
@@ -127,7 +127,8 @@ describe('RunInputCommand', () => {
                 shellCommandService,
                 mockType<CommandReader>({read: () => Promise.resolve()}),
                 historyStore,
-                mockType<Workspace>()
+                mockType<Workspace>(),
+                null
             );
 
             await command.execute(editor);

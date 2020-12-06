@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import {EXTENSION_NAME} from '../const';
 import {ShellCommandService} from '../shell-command-service';
 import {HistoryStore} from '../history-store';
@@ -13,8 +14,9 @@ export class RunQuickCommand extends RunCommand {
     constructor(shellCommandService: ShellCommandService,
                 historyStore: HistoryStore,
                 private readonly workspace: Workspace,
+                clipboard: typeof vscode.env.clipboard | null,
                 private readonly commandNumber: number) {
-        super(shellCommandService, historyStore, workspace);
+        super(shellCommandService, historyStore, workspace, clipboard);
     }
 
     protected getCommandText(): Promise<string|undefined> {

@@ -26,7 +26,7 @@ export class AppIntegratorFactory {
     }
 
     create() {
-        return new AppIntegrator(this.runCommand, this.clearHistoryCommand, this.createQuickCommand, vscode);
+        return new AppIntegrator(this.runCommand, this.runToClipboardCommand, this.clearHistoryCommand, this.createQuickCommand, vscode);
     }
 
     private get runCommand() {
@@ -34,15 +34,27 @@ export class AppIntegratorFactory {
             this.shellCommandService,
             new CommandReader(this.historyStore, vscode.window),
             this.historyStore,
-            this.workspaceAdapter
+            this.workspaceAdapter,
+            null
+        ));
+    }
+
+    private get runToClipboardCommand() {
+        return this.wrapCommand(new RunInputCommand(
+            this.shellCommandService,
+            new CommandReader(this.historyStore, vscode.window),
+            this.historyStore,
+            this.workspaceAdapter,
+            vscode.env.clipboard
         ));
     }
 
     private get createQuickCommand() {
-        return (commandNumber: number) => this.wrapCommand(new RunQuickCommand(
+        return (commandNumber: number, clipboard: typeof vscode.env.clipboard) => this.wrapCommand(new RunQuickCommand(
             this.shellCommandService,
             this.historyStore,
             this.workspaceAdapter,
+            clipboard,
             commandNumber
         ));
     }

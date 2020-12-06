@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import {EXTENSION_NAME} from '../const';
 import {ShellCommandService} from '../shell-command-service';
 import {HistoryStore} from '../history-store';
@@ -8,7 +9,8 @@ import {ExtensionCommand} from './extension-command';
 export abstract class RunCommand implements ExtensionCommand {
     constructor(private readonly shellCommandService: ShellCommandService,
                 private readonly historyStore: HistoryStore,
-                private readonly workspaceAdapter: Workspace) {}
+                private readonly workspaceAdapter: Workspace,
+                private readonly clipboard: typeof vscode.env.clipboard | null) {}
 
     protected abstract getCommandText(): Promise<string|undefined>;
 
@@ -30,7 +32,11 @@ export abstract class RunCommand implements ExtensionCommand {
         const promiseOfCommandOutputs = wrappedEditor.selectedTexts
             .map(input => this.shellCommandService.runCommand({command, input, filePath}));
         const commandOutputs = await Promise.all(promiseOfCommandOutputs);
-        await wrappedEditor.replaceSelectedTextsWith(commandOutputs);
+        if (this.clipboard) {
+            await this.clipboard.writeText(commandOutputs.join('\n'));
+        } else {
+            await wrappedEditor.replaceSelectedTextsWith(commandOutputs);
+        }
     }
 
     private async processEntireText(command: string, wrappedEditor: Editor): Promise<void> {
@@ -39,7 +45,11 @@ export abstract class RunCommand implements ExtensionCommand {
             input: wrappedEditor.entireText,
             filePath: wrappedEditor.filePath
         });
-        await wrappedEditor.replaceEntireTextWith(commandOutput);
+        if (this.clipboard) {
+            await this.clipboard.writeText(commandOutput);
+        } else {
+            await wrappedEditor.replaceEntireTextWith(commandOutput);
+        }
     }
 
     private shouldPassEntireText(wrappedEditor: Editor): boolean {

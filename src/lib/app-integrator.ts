@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import {EXTENSION_NAME} from './const';
 import {ExecutionContextLike} from './types/vscode';
 import {CommandWrap} from './command-wrap';
@@ -9,8 +10,9 @@ interface CommandHandlerInfo {
 
 export class AppIntegrator {
     constructor(private readonly runCommand: CommandWrap,
+                private readonly runToClipboardCommand: CommandWrap,
                 private readonly clearHistoryCommand: CommandWrap,
-                private readonly createQuickCommand: (n: number) => CommandWrap,
+                private readonly createQuickCommand: (n: number, clipboard: typeof vscode.env.clipboard) => CommandWrap,
                 private readonly vscode: any) {}
 
     integrate(context: ExecutionContextLike) {
@@ -44,10 +46,18 @@ export class AppIntegrator {
                 id: `${EXTENSION_NAME}.runCommand`,
                 command: this.runCommand
             },
+            {
+                id: `${EXTENSION_NAME}.runToClipboardCommand`,
+                command: this.runToClipboardCommand
+            },
             ...[1, 2, 3, 4, 5].map(n => ({
                 id: `${EXTENSION_NAME}.runQuickCommand${n}`,
-                command: this.createQuickCommand(n)
-            }))
+                command: this.createQuickCommand(n, null)
+            })),
+            ...[1, 2, 3, 4, 5].map(n => ({
+                id: `${EXTENSION_NAME}.runToClipboardQuickCommand${n}`,
+                command: this.createQuickCommand(n, vscode.env.clipboard)
+            })),
         ];
     }
 }
